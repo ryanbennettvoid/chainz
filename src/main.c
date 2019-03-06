@@ -1,50 +1,37 @@
 
-#include <assert.h>
-#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "../include/block.h"
 
+chainz_block_t*
+append_block(char* data, chainz_block_t** tail)
+{
+  char* str = strdup(data);
+  str[(size_t)strlen(str) - 1] = '\0'; // remove new line ending
+  chainz_block_t* block = chainz_block_create(str, *tail);
+  *tail = block;
+  return block;
+}
+
 int
-main()
+main(int argc, char** argv)
 {
 
   chainz_block_t *genesis, *tail;
   genesis = chainz_block_create("initial block", NULL);
   tail = genesis;
 
-  char* data;
-
-  for (int i = 0; i < 3; i++) {
-    data = malloc(sizeof(char) * MAX_DATA_SIZE);
-    snprintf(data, MAX_DATA_SIZE, "this is my fake data %d", i);
-    data = realloc(data, strlen(data) + 1);
-    chainz_block_t* block = chainz_block_create(data, tail);
-    block->prev_block = tail;
-    tail = block;
+  char* data = NULL;
+  size_t len;
+  while (getline(&data, &len, stdin) != EOF) {
+    chainz_block_t* block = append_block(data, &tail);
+    chainz_block_print(block);
+    putchar('\n');
   }
 
-  {
-    chainz_block_t* cursor = tail;
-    do {
-      chainz_block_print(cursor);
-      bool verified = chainz_block_verify(cursor);
-      assert(verified);
-      printf("block verified: %s\n\n", cursor->hash);
-    } while ((cursor = cursor->prev_block));
-  }
-
-  {
-    chainz_block_t* cursor = tail;
-    cursor->hash = "bad hash";
-    printf("placed bad hash...\n");
-    chainz_block_print(cursor);
-    bool verified = chainz_block_verify(cursor);
-    assert(verified == false);
-    printf("block verification FAILED: %s\n\n", cursor->hash);
-  }
+  free(data);
 
   return 0;
 }

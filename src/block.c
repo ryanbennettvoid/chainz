@@ -46,7 +46,7 @@ chainz_make_hash(chainz_block_t* block)
   int charset_size = strlen(CHARSET);
 
   // more iterations as blockchain grows in size
-  float growth_factor = 1 + ((1 + block->index) * 0.01);
+  float growth_factor = 1 + (block->index * 0.01);
   unsigned long long iterations = (block->timestamp / 100000) * growth_factor;
   // printf("%llu\n", iterations);
 
