@@ -23,6 +23,8 @@ main(int argc, char** argv)
   genesis = chainz_block_create("initial block", NULL);
   tail = genesis;
 
+  puts("Enter a string to create a new block:");
+
   char* data = NULL;
   size_t len;
   while (getline(&data, &len, stdin) != EOF) {
